@@ -1,0 +1,18 @@
+---
+globs:
+  - "**/*.tsx"
+  - "**/*.jsx"
+---
+
+# Component Conventions
+
+- Functional components only. No class components.
+- Define Props interface above the component, named `{ComponentName}Props`.
+- Use named exports: `export function MyComponent() {}`, not default exports.
+- Colocate test file next to component: `Button.tsx` + `Button.test.tsx`.
+- Extract custom hooks when logic is reused or component gets complex.
+- Prefer composition over prop drilling — use context or compound components.
+- All event handlers prefixed with `handle`: `handleClick`, `handleSubmit`.
+- Memoize expensive computations with `useMemo`, callbacks with `useCallback`.
+- Always handle loading, error, and empty states explicitly.
+- Components under 200 lines — split if larger.

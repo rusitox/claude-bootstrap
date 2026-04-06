@@ -1,0 +1,60 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{TEST_COMMAND}} 2>&1 || true"
+          },
+          {
+            "type": "agent",
+            "agent": "qa",
+            "prompt": "Review the files modified in this session (check `git diff`). For each modified file: 1) Check if corresponding test files exist. 2) If tests exist, verify they still pass. 3) If tests are missing for new logic, write them. 4) Report a summary of test coverage status. If any tests fail, return {\"continue\": true} so the main agent can fix the issues."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'INPUT=$(cat); CMD=$(echo \"$INPUT\" | jq -r \".tool_input.command // empty\"); if echo \"$CMD\" | grep -q \"git commit\"; then {{LINT_COMMAND}} && {{TYPECHECK_COMMAND}} && {{TEST_COMMAND}}; fi'"
+          },
+          {
+            "type": "command",
+            "command": "bash -c 'INPUT=$(cat); CMD=$(echo \"$INPUT\" | jq -r \".tool_input.command // empty\"); if echo \"$CMD\" | grep -q \"gh pr create\"; then {{LINT_COMMAND}} && {{TYPECHECK_COMMAND}} && {{TEST_COMMAND}}; fi'"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash({{PACKAGE_MANAGER}} run:*)",
+      "Bash({{PACKAGE_MANAGER}} dev:*)",
+      "Bash({{PACKAGE_MANAGER}} build:*)",
+      "Bash({{PACKAGE_MANAGER}} lint:*)",
+      "Bash({{PACKAGE_MANAGER}} test:*)",
+      "Bash({{PACKAGE_MANAGER}} typecheck:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh pr:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(git push --force:*)",
+      "Bash(git reset --hard:*)"
+    ]
+  }
+}

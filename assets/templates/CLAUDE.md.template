@@ -1,0 +1,37 @@
+# {{PROJECT_NAME}}
+
+{{PROJECT_DESCRIPTION}}
+
+## Stack
+
+- **Language**: {{LANGUAGE}}
+- **Framework**: {{FRAMEWORK}}
+- **Package Manager**: {{PACKAGE_MANAGER}}
+- **Linter**: {{LINTER}}
+- **Testing**: {{TEST_FRAMEWORK}}
+
+## Commands
+
+```bash
+{{PACKAGE_MANAGER}} run dev      # Start dev server
+{{BUILD_COMMAND}}                 # Production build
+{{LINT_COMMAND}}                  # Lint
+{{TYPECHECK_COMMAND}}             # Type check
+{{TEST_COMMAND}}                  # Tests
+```
+
+## Architecture
+
+{{ARCHITECTURE_OVERVIEW}}
+
+## Conventions
+
+- Follow existing code patterns in the codebase
+- All code must pass lint and type checks before commit
+- Use structured logging, never console.log in production
+- Write tests for new features
+- Use Conventional Commits for commit messages
+
+## Key Files
+
+{{KEY_FILES_LIST}}

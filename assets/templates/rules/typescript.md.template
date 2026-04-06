@@ -1,0 +1,18 @@
+---
+globs:
+  - "**/*.ts"
+  - "**/*.tsx"
+---
+
+# TypeScript Conventions
+
+- Strict mode always. No `any` types — use `unknown` + type narrowing.
+- Prefer `interface` for object shapes, `type` for unions/intersections.
+- Use `as const` for literal types and enums alternatives.
+- Explicit return types on exported functions.
+- Use nullish coalescing (`??`) over logical OR (`||`) for defaults.
+- Use optional chaining (`?.`) but handle the undefined case.
+- Prefer `Map`/`Set` over plain objects for dynamic keys.
+- Errors must be typed — use custom error classes, not `throw new Error()`.
+- No default exports — use named exports everywhere.
+- Imports ordered: external → internal → types (enforce via linter).
