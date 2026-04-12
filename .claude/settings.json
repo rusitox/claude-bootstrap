@@ -1,0 +1,47 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "agent",
+            "agent": "qa",
+            "prompt": "Review the files modified in this session (check `git diff`). For each modified template or script: 1) Verify all {{PLACEHOLDER}} variables are documented in SKILL.md. 2) Check for invalid hook event names (PreCommit, PostCommit do not exist). 3) Validate JSON files are syntactically correct. Report any issues found. If issues are critical, return {\"continue\": true} so the main agent can fix them."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'INPUT=$(cat); CMD=$(echo \"$INPUT\" | jq -r \".tool_input.command // empty\"); if echo \"$CMD\" | grep -q \"git commit\"; then echo \"Running pre-commit checks...\"; grep -r \"PreCommit\\|PostCommit\" assets/templates/ && echo \"WARNING: Invalid hook events found\" || echo \"Hook events OK\"; fi'"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh pr:*)",
+      "Bash(bash scripts/*:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(git push --force:*)",
+      "Bash(git reset --hard:*)"
+    ]
+  }
+}
