@@ -85,3 +85,5 @@ When a bug is found:
 
 ## After Completing Any Task
 Update memory with: test patterns used, coverage gaps found, flaky tests identified, bugs and their regression tests.
+
+{{GITHUB_ISSUES_SECTION}}

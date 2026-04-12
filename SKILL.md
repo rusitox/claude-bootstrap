@@ -92,6 +92,13 @@ Also ask these questions if not obvious from detection:
 3. **Test command**: What command runs tests?
 4. **Type check command**: (e.g., `npx tsc --noEmit`)
 5. **Key files**: Most important files Claude should read first?
+6. **GitHub Issues integration**: Should the QA agent automatically create GitHub Issues
+   when it finds bugs or failing tests that can't be auto-fixed?
+   Detect with: `gh auth status 2>/dev/null && gh repo view 2>/dev/null`
+   — suggest `true` only if both commands succeed (authenticated + inside a GitHub repo).
+   Show in the confirmation screen as:
+   `✅ github-issues  — QA crea issues automáticamente (detectado)` or
+   `⬚ github-issues  — gh no autenticado o no es repo GitHub`
 
 ## Step 3: Create the Directory Structure
 
@@ -149,6 +156,8 @@ Read template files from `assets/templates/` and customize based on stack profil
 | `{{KEY_FILES}}` | list of important files |
 | `{{PROJECT_NAME}}` | from package.json or directory |
 | `{{PROJECT_DESCRIPTION}}` | from package.json or ask user |
+| `{{GITHUB_ISSUES_ENABLED}}` | true / false — whether QA agent creates GitHub Issues |
+| `{{GITHUB_ISSUES_SECTION}}` | Full GitHub Issues section for qa.md, or empty string |
 
 ### Agent Generation Logic
 
@@ -166,6 +175,49 @@ Read template files from `assets/templates/` and customize based on stack profil
   - Customize with specific ORM commands and migration patterns
 - `devops.md` — IF .github/workflows/ or Dockerfile or CI config detected
   - Customize with specific CI platform (GitHub Actions, GitLab CI, etc.)
+
+### GitHub Issues Section Generation
+
+Replace `{{GITHUB_ISSUES_SECTION}}` in `qa.md`:
+
+- **If `GITHUB_ISSUES_ENABLED` is `true`**: replace with the following block verbatim:
+
+```markdown
+## GitHub Issues
+
+When you find real issues during QA, create GitHub Issues to track them.
+
+### When to create an issue
+- Tests are failing and cannot be auto-fixed in this session
+- A bug is discovered during code review
+- Critical paths (auth, payments, data) are missing tests (>20% below the minimum standard)
+- A flaky test is identified that needs investigation
+
+### When NOT to create an issue
+- Issues you already fixed in this session
+- Minor coverage improvements on non-critical paths
+- Warnings that don't affect functionality
+- Issues that already exist in GitHub — always check first
+
+### How to create issues
+
+1. **Check for duplicates first:**
+```bash
+gh issue list --label qa --state open --limit 20
+```
+
+2. **Create the issue:**
+```bash
+gh issue create \
+  --title "[QA] <concise description>" \
+  --body "## Description\n\n<what was found>\n\n## Files Affected\n\n<list>\n\n## Steps to Reproduce\n\n<if applicable>\n\n## Expected Behavior\n\n<what should happen>" \
+  --label "qa"
+```
+
+3. **Save to memory** the issue number and description to avoid duplicates in future sessions.
+```
+
+- **If `GITHUB_ISSUES_ENABLED` is `false`**: replace `{{GITHUB_ISSUES_SECTION}}` with an empty string.
 
 ### settings.json Generation
 
@@ -197,7 +249,10 @@ See `references/ARCHITECTURE.md` for the complete workflow diagram.
 ## Step 5: Generate CLAUDE.md
 
 If no CLAUDE.md exists at the project root, generate one from
-`assets/templates/CLAUDE.md.template`. Keep it under 100 lines.
+`assets/templates/CLAUDE.md.template`. The template has two parts:
+- **Top**: project-specific section with `{{PLACEHOLDERS}}` (stack, commands, key files)
+- **Bottom**: hardcoded behavioral guidelines (Think Before Coding, Simplicity First,
+  Surgical Changes, Goal-Driven Execution) — these are universal and stay verbatim.
 
 ## Step 6: Update .gitignore
 
