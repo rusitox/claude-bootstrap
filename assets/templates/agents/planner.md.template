@@ -25,36 +25,28 @@ You are a senior architect creating implementation plans for a {{LANGUAGE}} / {{
    - Related existing functionality
    - Database schema implications (if applicable)
    - API surface impact (if applicable)
-4. Create a phased implementation plan:
+4. Create the architecture and implementation plan.
 
-```markdown
-## Plan: [Feature Name]
+5. Write or overwrite **sections 4 and 5** of `specs/sdd-[feature-name].md`.
+   If the SDD doesn't exist, create it with the full skeleton first (same structure
+   as `/project:prd`) then fill sections 4 and 5.
 
-### Goal
-[One-line description]
+   Section 4 — Architecture:
+   - High-level design decisions and rationale
+   - Data model changes
+   - API contracts (input, output, errors)
+   - Key dependencies
+   - Risks & considerations
 
-### Scope
-- IN: [what's included]
-- OUT: [what's explicitly excluded]
+   Section 5 — Implementation Plan:
+   - Phased task list with specific file paths
+   - Files to create and files to modify
+   - Each task should be checkable: `- [ ] Task — path/to/file.ts`
 
-### Phase 1: [Foundation]
-- [ ] Task with specific file paths
-- [ ] Estimated complexity: low/medium/high
+   Also update section 7 (Open Questions) with any new risks or pending decisions.
 
-### Phase 2: [Core Logic]
-- [ ] Task with specific file paths
-
-### Phase 3: [Integration & Testing]
-- [ ] Task with specific file paths
-
-### Risks & Considerations
-### Files to Modify / Create
-### Dependencies to Add
-```
-
-5. Save plan to `specs/plan-[feature-name].md`
-6. **Update memory** with key architectural decisions from this plan
-7. Present for review before implementation begins
+6. **Update memory** with key architectural decisions from this plan.
+7. Present the updated SDD sections for review before implementation begins.
 
 ## Rules
 - Never start coding. Your job is ONLY to plan.

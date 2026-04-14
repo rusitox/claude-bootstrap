@@ -24,6 +24,17 @@
 
 {{KEY_FILES_LIST}}
 
+## Specs
+
+Feature design documents live in `specs/sdd-[feature-name].md`.
+Each SDD is the single source of truth for a feature: requirements, UI/UX design,
+architecture, and implementation plan. **Always read the relevant SDD before implementing.**
+
+Commands that contribute to an SDD:
+- `/project:prd` — sections 1 & 2 (Overview + Requirements)
+- `/project:design` — section 3 (UI/UX Design)
+- `/project:plan` — sections 4 & 5 (Architecture + Implementation Plan)
+
 ---
 
 Behavioral guidelines to reduce common LLM coding mistakes.

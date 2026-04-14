@@ -1,72 +1,66 @@
 ---
 allowed-tools: Read, Write, Bash, Glob, Grep
-description: Create a detailed implementation plan for a feature or task. ALWAYS saves to specs/.
+description: Create implementation plan and update sections 4 & 5 of the SDD
 ---
 
-## Implementation Planning
+Plan implementation for: $ARGUMENTS
 
-**CRITICAL: Every plan MUST be saved to `specs/plan-$ARGUMENTS.md`. A plan that only exists in the conversation is a plan that WILL be lost.**
+## Step 1: Locate the SDD
 
-### Step 1: Understand
-1. Read the requirement from `$ARGUMENTS`
-2. If unclear, ask ONE clarifying question — then proceed
-3. Check memory and `specs/` for related previous plans
+Check if `specs/sdd-[feature-name].md` exists.
+- **If it exists**: read sections 1-3 before planning — requirements and design
+  decisions must inform the architecture
+- **If it doesn't exist**: warn that PRD hasn't been defined yet, create the SDD
+  skeleton, then proceed
 
-### Step 2: Explore
-1. Explore the codebase to understand current architecture
-2. Identify affected files, modules, and dependencies
-3. Check for existing patterns that should be followed
+## Step 2: Invoke the planner agent
 
-### Step 3: Plan
-Create a structured plan with this format:
+Hand off to the `planner` agent with:
+- The full SDD content (sections 1-3 if available)
+- The feature from $ARGUMENTS
+- Instruction to produce architecture + implementation plan
+
+## Step 3: Update SDD sections 4 & 5
+
+Write or overwrite sections 4 and 5 of `specs/sdd-[feature-name].md`:
 
 ```markdown
-# Plan: [Feature Name]
-> Created: [YYYY-MM-DD]
-> Status: draft | approved | in-progress | done
+## 4. Architecture
 
-## Goal
-[One-line description]
+### Overview
+[High-level design decisions and rationale]
 
-## Scope
-- **IN**: [what's included]
-- **OUT**: [what's explicitly excluded]
+### Data Model
+[New or modified entities, schema changes]
 
-## Phase 1: [Foundation]
-- [ ] Task with specific file paths
-- [ ] Estimated complexity: low/medium/high
+### API Contracts
+[Endpoints or functions: input, output, errors]
 
-## Phase 2: [Core Logic]
-- [ ] Task with specific file paths
+### Key Dependencies
+[Libraries, services, or internal modules involved]
 
-## Phase 3: [Integration & Testing]
-- [ ] Task with specific file paths
+### Risks & Considerations
+[Performance, security, backward compatibility]
 
-## Risks & Considerations
-- [risk 1]
-- [risk 2]
+---
 
-## Files to Modify / Create
-- `path/to/file.ts` — description of change
+## 5. Implementation Plan
 
-## Dependencies to Add
-- [package] — reason
+### Phase 1: [Foundation]
+- [ ] Task — `path/to/file.ts`
+- [ ] Task — complexity: low/medium/high
+
+### Phase 2: [Core Logic]
+- [ ] Task — `path/to/file.ts`
+
+### Phase 3: [Integration & Testing]
+- [ ] Task — `path/to/file.ts`
+
+### Files to Create
+- `path/to/new-file.ts` — purpose
+
+### Files to Modify
+- `path/to/existing.ts` — what changes
 ```
 
-### Step 4: Save (MANDATORY)
-1. Create `specs/` directory if it doesn't exist: `mkdir -p specs`
-2. Save the plan to `specs/plan-[feature-name-kebab-case].md`
-3. Confirm to the user: "Plan saved to specs/plan-[name].md"
-4. Update agent memory with key decisions from this plan
-
-### Step 5: Present
-1. Show a summary of the plan
-2. Ask: "¿Aprobás el plan o querés ajustar algo antes de implementar?"
-3. If approved, update the plan status to `approved`
-
-## Rules
-- **NEVER** leave a plan only in the conversation — ALWAYS write to disk
-- Be specific: name files, functions, types — not abstractions
-- Flag risks early
-- Reference previous plans in `specs/` for consistency
-- If a plan for this feature already exists, update it instead of creating a new one
+Also update section 7 (Open Questions) if new risks or pending decisions were identified.

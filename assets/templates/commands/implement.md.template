@@ -1,17 +1,48 @@
 ---
 allowed-tools: Read, Write, Bash, Glob, Grep
-description: Implement a feature or task following the project plan
+description: Implement a feature or task following the SDD
 ---
 
 Implement: $ARGUMENTS
 
-1. Read the plan if it exists in `specs/`
-2. Understand existing patterns in the codebase
-3. Implement incrementally, validating after each change:
-   ```bash
-   {{LINT_COMMAND}} && {{TYPECHECK_COMMAND}}
-   ```
-4. Follow {{LANGUAGE}} / {{FRAMEWORK}} conventions
-5. Add error handling and structured logging
-6. Self-review before presenting: no hardcoded values, no console.log, clean imports
-7. Summarize what was implemented and decisions made
+## Step 1: Check for SDD
+
+Look for `specs/sdd-[feature-name].md`:
+
+```bash
+ls specs/sdd-*.md 2>/dev/null
+```
+
+- **If found**: read the full SDD. Sections 4 & 5 are your implementation guide.
+  Section 3 (UI/UX) and section 2 (Requirements) define what done looks like.
+- **If not found**: warn the user that no SDD exists for this feature.
+  Ask whether to proceed without one or run `/project:plan` first.
+
+## Step 2: Implement following the SDD
+
+Work through section 5 (Implementation Plan) phase by phase:
+- Check off tasks as they are completed
+- Follow architecture decisions from section 4
+- Match UI/UX spec from section 3
+- Validate after each phase:
+  ```bash
+  {{LINT_COMMAND}} && {{TYPECHECK_COMMAND}}
+  ```
+
+## Step 3: Follow project conventions
+
+- Follow {{LANGUAGE}} / {{FRAMEWORK}} conventions
+- No hardcoded values, no console.log, clean imports
+- Add error handling only at system boundaries
+
+## Step 4: Update the SDD
+
+When implementation is complete, update `specs/sdd-[feature-name].md`:
+- Change **Status** to `Implemented`
+- Fill in section 6 (Testing Strategy) with what was tested and how
+- Close any resolved items in section 7 (Open Questions)
+
+## Step 5: Self-review
+
+Before presenting: verify the implementation satisfies all P0 requirements
+from section 2, and all acceptance criteria are met.

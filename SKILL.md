@@ -290,8 +290,10 @@ Ensure `.gitignore` includes:
    [devops]        — CI/CD y deploy
 
 🚀 Para empezar:
-   /project:prime        → Cargar contexto
-   /project:plan         → Planificar una feature
-   /project:implement    → Implementar
+   /project:prime        → Cargar contexto y ver SDDs activos
+   /project:prd          → Crear SDD + definir requisitos (secciones 1-2)
+   /project:design       → Revisar UX/UI y completar SDD sección 3
+   /project:plan         → Planificar arquitectura y completar SDD secciones 4-5
+   /project:implement    → Implementar siguiendo el SDD
    /project:validate     → Verificar calidad
 ```

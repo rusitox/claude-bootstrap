@@ -1,66 +1,67 @@
 ---
 allowed-tools: Read, Write, Bash, Glob, Grep
-description: Review or generate UX/UI design spec for a feature or screen
+description: Review UX/UI design and update section 3 of the SDD
 ---
 
 Design review for: $ARGUMENTS
 
-## Step 1: Survey existing design artifacts
+## Step 1: Locate the SDD
 
-Check what design infrastructure exists in this project:
+Check if `specs/sdd-[feature-name].md` exists.
+- **If it exists**: read it to understand the requirements before reviewing
+- **If it doesn't exist**: create it with the full SDD skeleton first
+  (same structure as `/project:prd`), then proceed
+
+## Step 2: Survey existing design artifacts
 
 ```bash
-# Design system / component library
+# Component library
 grep -E '"@shadcn|@mui|@chakra-ui|@radix-ui|@headlessui|antd|mantine' package.json 2>/dev/null
 
 # Design tokens
 ls tokens.json design-tokens/ style-dictionary.config.* tailwind.config.* 2>/dev/null
 
 # Storybook
-ls .storybook/ storybook.config.* 2>/dev/null
+ls .storybook/ 2>/dev/null
 
 # Figma references
 grep -rn "figma.com" . --include="*.md" --include="*.json" --include="*.ts" 2>/dev/null | head -10
 ```
 
-Report what was found before proceeding.
+## Step 3: Invoke the design agent
 
-## Step 2: Invoke the design agent
+Hand off to the `design` agent with:
+- The feature from $ARGUMENTS (or recently modified UI files if empty)
+- The requirements from the SDD (section 2)
+- All design artifacts detected in Step 2
+- Instruction to cover the 4 review areas
 
-Hand off to the `design` agent with full context:
-- The feature or screen from $ARGUMENTS (or all recently modified UI files if empty)
-- All design artifacts detected in Step 1
-- Instruction to cover all 4 review areas
+## Step 4: Update SDD section 3
 
-## Step 3: Save output
-
-Save the design review to `specs/design-[feature-name].md` with this structure:
+Write or overwrite section 3 of `specs/sdd-[feature-name].md`:
 
 ```markdown
-# Design Review: [Feature]
+## 3. UI/UX Design
 
-## Design Artifacts Found
-[tools, tokens, libraries, Figma links]
+### Design Artifacts
+[Figma links, Storybook URL, component library, token system]
 
-## 1. UI/UX Review
-[visual hierarchy, spacing, flow, consistency with existing screens]
+### Screens & Flows
+[Key screens, user flows, states: loading / empty / error]
 
-## 2. Design System
-[token usage, component reuse, deviations from the system]
+### Design System
+[Token usage, component reuse, deviations with justification]
 
-## 3. Component Architecture
-[props API, composition, naming, reusability]
+### Component Architecture
+[Props API, composition approach, reusability decisions]
 
-## 4. Accessibility
-[ARIA, contrast, keyboard nav, focus management, screen reader]
+### Accessibility
+[ARIA requirements, keyboard nav, contrast, focus management]
 
-## Issues
+### Issues
 | Severity | Area | Description | File |
 |----------|------|-------------|------|
 | 🔴 Critical | ... | ... | ... |
 | 🟡 Warning  | ... | ... | ... |
 | 🟢 Suggestion | ... | ... | ... |
-
-## Recommendations
-[ordered by priority]
 ```

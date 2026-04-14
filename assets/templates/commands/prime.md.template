@@ -1,6 +1,6 @@
 ---
-allowed-tools: Read, Glob
-description: Prime agent with codebase context
+allowed-tools: Read, Glob, Bash
+description: Prime agent with codebase context and active SDDs
 ---
 
 Read these files to understand the codebase before starting work:
@@ -12,4 +12,14 @@ Then run:
 {{LINT_COMMAND}} && {{TYPECHECK_COMMAND}}
 ```
 
-Confirm all checks pass before proceeding.
+Then check for active feature specs:
+```bash
+ls specs/sdd-*.md 2>/dev/null || echo "No SDDs found"
+```
+
+For each SDD found, read it and report:
+- Feature name and current **Status** (Draft / In Review / Approved / Implemented)
+- Which sections are complete vs pending
+- Any open questions from section 7
+
+Confirm all checks pass and summarize the project state before proceeding.
