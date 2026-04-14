@@ -1,0 +1,66 @@
+---
+allowed-tools: Read, Write, Bash, Glob, Grep
+description: Review or generate UX/UI design spec for a feature or screen
+---
+
+Design review for: $ARGUMENTS
+
+## Step 1: Survey existing design artifacts
+
+Check what design infrastructure exists in this project:
+
+```bash
+# Design system / component library
+grep -E '"@shadcn|@mui|@chakra-ui|@radix-ui|@headlessui|antd|mantine' package.json 2>/dev/null
+
+# Design tokens
+ls tokens.json design-tokens/ style-dictionary.config.* tailwind.config.* 2>/dev/null
+
+# Storybook
+ls .storybook/ storybook.config.* 2>/dev/null
+
+# Figma references
+grep -rn "figma.com" . --include="*.md" --include="*.json" --include="*.ts" 2>/dev/null | head -10
+```
+
+Report what was found before proceeding.
+
+## Step 2: Invoke the design agent
+
+Hand off to the `design` agent with full context:
+- The feature or screen from $ARGUMENTS (or all recently modified UI files if empty)
+- All design artifacts detected in Step 1
+- Instruction to cover all 4 review areas
+
+## Step 3: Save output
+
+Save the design review to `specs/design-[feature-name].md` with this structure:
+
+```markdown
+# Design Review: [Feature]
+
+## Design Artifacts Found
+[tools, tokens, libraries, Figma links]
+
+## 1. UI/UX Review
+[visual hierarchy, spacing, flow, consistency with existing screens]
+
+## 2. Design System
+[token usage, component reuse, deviations from the system]
+
+## 3. Component Architecture
+[props API, composition, naming, reusability]
+
+## 4. Accessibility
+[ARIA, contrast, keyboard nav, focus management, screen reader]
+
+## Issues
+| Severity | Area | Description | File |
+|----------|------|-------------|------|
+| 🔴 Critical | ... | ... | ... |
+| 🟡 Warning  | ... | ... | ... |
+| 🟢 Suggestion | ... | ... | ... |
+
+## Recommendations
+[ordered by priority]
+```

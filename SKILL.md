@@ -78,6 +78,7 @@ Present the detected profile AND proposed agents:
   ✅ code-reviewer  — Revisión de código y calidad (siempre)
   ✅ qa             — Testing, QA y validación (siempre)
   ✅ frontend       — Especialista React Native/Expo (detectado)
+  ✅ design         — UX/UI, design system, accesibilidad (detectado)
   ⬚ backend        — No detectado
   ⬚ database       — No detectado
   ⬚ devops         — No detectado
@@ -118,13 +119,15 @@ Create the complete `.claude/` scaffold:
 │   ├── rca.md
 │   ├── check-ignores.md
 │   ├── create-command.md
-│   └── create-rules.md
+│   ├── create-rules.md
+│   └── design.md
 │
 ├── agents/            # Base + conditional agents
 │   ├── planner.md         # (always)
 │   ├── code-reviewer.md   # (always)
 │   ├── qa.md              # (always)
 │   ├── frontend.md        # (if frontend detected)
+│   ├── design.md          # (if frontend detected)
 │   ├── backend.md         # (if backend detected)
 │   ├── database.md        # (if database detected)
 │   └── devops.md          # (if CI/CD detected)
@@ -169,6 +172,9 @@ Read template files from `assets/templates/` and customize based on stack profil
 **Conditionally generate:**
 - `frontend.md` — IF framework is React/React Native/Next.js/Vue/Svelte/Angular
   - Customize system prompt with specific framework name and patterns
+- `design.md` — IF `HAS_FRONTEND = true` (same condition as frontend.md)
+  - Covers UI/UX review, design system consistency, component architecture, and accessibility
+  - Detects design tooling at runtime (Figma, Storybook, tokens, component libraries)
 - `backend.md` — IF framework is Express/Fastify/NestJS/FastAPI/Django/Flask
   - Customize with specific API patterns and middleware stack
 - `database.md` — IF Prisma/Drizzle/TypeORM/Sequelize/SQLAlchemy detected
@@ -278,6 +284,7 @@ Ensure `.gitignore` includes:
    code-reviewer   — Revisión de código
    qa              — Testing y validación
    [frontend]      — Especialista [framework]
+   [design]        — UX/UI, design system, accesibilidad
    [backend]       — Especialista [framework]
    [database]      — Especialista [ORM]
    [devops]        — CI/CD y deploy
