@@ -1,124 +1,168 @@
-# claude-bootstrap v2 — Skill para estandarizar proyectos
+# claude-bootstrap — Skill para Claude Code
 
-Skill auto-invocable para Claude Code que detecta cuando un proyecto no tiene
-configuración de `.claude/` y lo scaffoldea completo.
+Skill auto-invocable para Claude Code que detecta el stack de un proyecto y
+scaffoldea una configuración `.claude/` completa y lista para producción.
 
-## ¿Qué hace?
+## ¿Qué genera?
 
-1. **Detecta** el stack del proyecto (lenguaje, framework, ORM, CI/CD)
-2. **Pregunta** confirmación y ajustes
-3. **Genera** la estructura `.claude/` completa:
-   - 12 slash commands estándar
-   - 3 agentes base (planner, code-reviewer, qa)
-   - Agentes condicionales (frontend, backend, database, devops)
-   - Rules según el lenguaje/framework
-   - settings.json con hooks y permisos
-   - CLAUDE.md con contexto del proyecto
+| Categoría | Contenido |
+|---|---|
+| **14 slash commands** | prime, prd, design, plan, implement, validate, commit, create-pr, review-pr, rca, check-ignores, create-command, create-rules, upgrade |
+| **3 agentes base** | planner, code-reviewer, qa (siempre presentes) |
+| **5 agentes condicionales** | frontend, design, backend, database, devops |
+| **Rules** | typescript, react-components, python (según stack) |
+| **settings.json** | Hooks en 3 capas + permisos |
+| **CLAUDE.md** | Contexto del proyecto + guías de comportamiento |
 
-## Cambios en v2
+## Flujo de desarrollo generado
 
-- **FIX**: Hooks corregidos — `PreCommit` (inválido) → `PreToolUse` con matcher
-- **NEW**: Agente QA — siempre presente, testing y validación
-- **NEW**: Agentes condicionales — frontend, backend, database, devops
-- **NEW**: Detección expandida — detecta si el proyecto tiene frontend/backend/DB/CI
-- **IMPROVED**: Agentes especializados por stack (no genéricos)
+```
+/prd "feature"        → Crea specs/sdd-[feature].md (secciones 1-2: requisitos)
+/design "feature"     → Agrega sección 3 al SDD (UX/UI, design system, a11y)
+/plan "feature"       → Agrega secciones 4-5 al SDD (arquitectura + plan)
+/implement "feature"  → Lee el SDD y ejecuta la implementación
+/validate             → Lint + types + build + tests
+/commit               → Gate automático antes de commitear
+/create-pr            → Gate automático + PR con descripción estructurada
+```
 
-## Instalación (nueva)
+Cada feature tiene un único `specs/sdd-[feature].md` como fuente de verdad.
+
+## Hook architecture
+
+| Capa | Evento | Qué hace |
+|---|---|---|
+| 1 | `PostToolUse` | Auto-lint al guardar archivos |
+| 2 | `Stop` | Corre tests + agente QA revisa cobertura |
+| 3 | `PreToolUse` | Bloquea `git commit` y `gh pr create` si no pasan lint+types+tests |
+
+## Instalación
 
 ```bash
-# Copiar a tu directorio global de skills
+# Clonar o descargar el skill
+git clone https://github.com/rusitox/claude-bootstrap.git
+
+# Copiar al directorio global de skills de Claude Code
 cp -r claude-bootstrap ~/.claude/skills/claude-bootstrap
 ```
 
-## Actualización (desde v1)
+A partir de ahí Claude Code lo invoca automáticamente cuando detecta un proyecto
+sin `.claude/`, o cuando le pedís "bootstrap this project", "init claude", etc.
 
-```bash
-# Backup del skill anterior
-mv ~/.claude/skills/claude-bootstrap ~/.claude/skills/claude-bootstrap.v1.bak
+## Uso en un proyecto nuevo
 
-# Instalar v2
-cp -r claude-bootstrap ~/.claude/skills/claude-bootstrap
+Abrí Claude Code en tu proyecto y escribí:
 
-# Actualizar proyectos existentes que tienen el hook PreCommit inválido:
-# En cada proyecto, abrir .claude/settings.json y reemplazar:
-#   "PreCommit": [...]
-# por el nuevo patrón PreToolUse (ver settings.json.template)
 ```
+bootstrap this project
+```
+
+El skill va a:
+1. Detectar el stack automáticamente
+2. Mostrar los agentes propuestos y preguntar confirmación
+3. Hacer preguntas sobre comandos y GitHub Issues integration
+4. Generar toda la estructura `.claude/`
 
 ## Actualizar un proyecto existente
 
-Si ya tenés un proyecto bootstrapeado con v1:
+Si ya tenés un proyecto bootstrapeado con una versión anterior:
 
-```bash
-cd tu-proyecto
-
-# Opción 1: Re-bootstrap completo (regenera todo)
-# En Claude Code, ejecutar:
-#   "re-bootstrap este proyecto con el skill actualizado"
-
-# Opción 2: Actualización manual selectiva
-# 1. Corregir settings.json (cambiar PreCommit → PreToolUse)
-# 2. Agregar los nuevos agentes:
-cp ~/.claude/skills/claude-bootstrap/assets/templates/agents/qa.md.template .claude/agents/qa.md
-# Editar qa.md y reemplazar los {{placeholders}} con los valores de tu proyecto
-# 3. Agregar agentes condicionales si aplican (frontend, backend, etc.)
+```
+/project:upgrade
 ```
 
-## Estructura del Skill
+El comando `/upgrade` detecta qué cambió, muestra un plan de lo que va a
+actualizar, pide confirmación, y aplica los cambios. **Nunca modifica
+`.claude/agent-memory/`** — la memoria acumulada de los agentes queda intacta.
+
+Para proyectos que no tienen el comando `/upgrade` todavía, invocar el skill
+directamente: Claude detecta el `.claude/` existente y ofrece el modo upgrade.
+
+## Actualizar el skill
+
+```bash
+cd ~/.claude/skills/claude-bootstrap
+git pull
+```
+
+Los proyectos existentes siguen usando los archivos generados hasta que
+corrás `/project:upgrade` en cada uno.
+
+## Estructura del skill
 
 ```
 claude-bootstrap/
-├── SKILL.md                          ← Definición principal (auto-invocable)
-├── README.md                         ← Este archivo
+├── SKILL.md                          ← Definición principal del skill
 ├── scripts/
 │   └── detect-stack.sh               ← Detecta lenguaje, framework, tools
 ├── references/
-│   └── ARCHITECTURE.md               ← Referencia de la arquitectura .claude/
+│   └── ARCHITECTURE.md               ← Arquitectura y decisiones de diseño
 └── assets/templates/
-    ├── CLAUDE.md.template             ← Template para CLAUDE.md
-    ├── settings.json.template         ← Hooks y permisos (FIXED)
-    ├── settings.local.json.template   ← Overrides personales
-    ├── commands/                      ← 12 slash commands
-    │   ├── prime.md.template
-    │   ├── plan.md.template
-    │   ├── implement.md.template
-    │   ├── validate.md.template
-    │   ├── commit.md.template
-    │   ├── create-pr.md.template
-    │   ├── review-pr.md.template
-    │   ├── prd.md.template
-    │   ├── rca.md.template
-    │   ├── check-ignores.md.template
-    │   ├── create-command.md.template
-    │   └── create-rules.md.template
-    ├── agents/                        ← Base + condicionales
-    │   ├── planner.md.template        ← (siempre)
-    │   ├── code-reviewer.md.template  ← (siempre)
-    │   ├── qa.md.template             ← (siempre) NEW
-    │   ├── frontend.md.template       ← (condicional) NEW
-    │   ├── backend.md.template        ← (condicional) NEW
-    │   ├── database.md.template       ← (condicional) NEW
-    │   └── devops.md.template         ← (condicional) NEW
+    ├── CLAUDE.md.template             ← Stack info + guías de comportamiento
+    ├── settings.json.template         ← Hooks y permisos
+    ├── settings.local.json.template   ← Overrides personales (gitignoreado)
+    ├── commands/                      ← 14 slash commands
+    │   ├── prime.md.template          ← Carga contexto + lista SDDs activos
+    │   ├── prd.md.template            ← Crea SDD + secciones 1-2
+    │   ├── design.md.template         ← Agrega sección 3 al SDD
+    │   ├── plan.md.template           ← Agrega secciones 4-5 al SDD
+    │   ├── implement.md.template      ← Implementa siguiendo el SDD
+    │   ├── validate.md.template       ← Lint + types + build + tests
+    │   ├── commit.md.template         ← Conventional commit
+    │   ├── create-pr.md.template      ← PR estructurado
+    │   ├── review-pr.md.template      ← Code review
+    │   ├── rca.md.template            ← Root cause analysis
+    │   ├── check-ignores.md.template  ← Verifica .gitignore
+    │   ├── create-command.md.template ← Crea nuevo slash command
+    │   ├── create-rules.md.template   ← Crea nueva rule
+    │   └── upgrade.md.template        ← Actualiza .claude/ preservando memoria
+    ├── agents/
+    │   ├── planner.md.template        ← (siempre) Arquitectura y planificación
+    │   ├── code-reviewer.md.template  ← (siempre) Revisión de código
+    │   ├── qa.md.template             ← (siempre) Testing + GitHub Issues
+    │   ├── frontend.md.template       ← (si frontend) Especialista de UI
+    │   ├── design.md.template         ← (si frontend) UX/UI, design system, a11y
+    │   ├── backend.md.template        ← (si backend) APIs, auth, middleware
+    │   ├── database.md.template       ← (si DB) Schema, migraciones, queries
+    │   └── devops.md.template         ← (si CI/CD) Pipelines, Docker, deploy
     └── rules/
         ├── typescript.md.template
         ├── react-components.md.template
         └── python.md.template
 ```
 
+## SDD — Software Design Document
+
+Cada feature genera un único documento en `specs/sdd-[feature].md`:
+
+```markdown
+# SDD: [Feature]
+**Status:** Draft | In Review | Approved | Implemented
+
+## 1. Overview          ← /prd
+## 2. Requirements      ← /prd
+## 3. UI/UX Design      ← /design
+## 4. Architecture      ← /plan
+## 5. Implementation    ← /plan
+## 6. Testing Strategy  ← QA agent (durante implementación)
+## 7. Open Questions    ← cualquier comando
+```
+
 ## Placeholders
 
 | Placeholder | Ejemplo |
 |---|---|
+| `{{PROJECT_NAME}}` | my-app |
+| `{{LANGUAGE}}` | TypeScript, Python |
+| `{{FRAMEWORK}}` | Next.js, React Native, FastAPI |
 | `{{PACKAGE_MANAGER}}` | bun, pnpm, npm, yarn |
 | `{{LINT_COMMAND}}` | pnpm run lint |
 | `{{LINT_FIX_COMMAND}}` | pnpm run lint --fix |
 | `{{BUILD_COMMAND}}` | pnpm run build |
 | `{{TEST_COMMAND}}` | pnpm run test |
 | `{{TYPECHECK_COMMAND}}` | npx tsc --noEmit |
-| `{{FRAMEWORK}}` | Next.js, React Native, FastAPI |
-| `{{LANGUAGE}}` | TypeScript, Python |
-| `{{DATABASE}}` | Prisma, Drizzle, SQLAlchemy |
 | `{{LINTER}}` | ESLint, Biome, Ruff |
 | `{{TEST_FRAMEWORK}}` | Vitest, Jest, Pytest |
 | `{{KEY_FILES}}` | Lista de archivos clave |
-| `{{PROJECT_NAME}}` | nombre del proyecto |
+| `{{GITHUB_ISSUES_ENABLED}}` | true / false |
+| `{{GITHUB_ISSUES_SECTION}}` | Sección completa o vacío |
