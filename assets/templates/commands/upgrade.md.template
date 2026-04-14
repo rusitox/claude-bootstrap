@@ -1,0 +1,143 @@
+---
+allowed-tools: Read, Write, Bash, Glob, Grep
+description: Upgrade .claude/ to the latest claude-bootstrap templates, preserving agent memory
+---
+
+Upgrade this project's Claude Code configuration to the latest templates.
+
+## Step 1: Protect agent memory
+
+Read `.claude/agent-memory/` to understand what accumulated knowledge exists —
+this context informs the upgrade report but is **never modified**.
+
+```bash
+ls -la .claude/agent-memory/ 2>/dev/null && \
+  find .claude/agent-memory -name "*.md" | head -20 || echo "No agent memory found"
+```
+
+Report what memory was found (e.g., "planner has 3 memory files, qa has 2").
+
+## Step 2: Inventory current .claude/
+
+```bash
+find .claude -type f | grep -v agent-memory | grep -v settings.local.json | sort
+```
+
+Identify:
+- Which standard commands exist vs which are missing
+- Which standard agents exist vs which are missing
+- Any custom commands or agents (not in the standard set — preserve these untouched)
+
+Standard commands: prime, plan, implement, validate, commit, create-pr, review-pr,
+prd, rca, check-ignores, create-command, create-rules, design, upgrade
+
+Standard agents: planner, code-reviewer, qa, frontend, design, backend, database, devops
+
+## Step 3: Extract current placeholder values
+
+Read existing generated files to recover the project-specific values:
+
+```bash
+# From commands
+cat .claude/commands/validate.md 2>/dev/null
+cat .claude/commands/implement.md 2>/dev/null
+cat .claude/agents/planner.md 2>/dev/null
+cat .claude/agents/frontend.md 2>/dev/null
+cat .claude/settings.json 2>/dev/null
+cat CLAUDE.md 2>/dev/null
+```
+
+Build a values map by reading what was substituted:
+- `LANGUAGE` — from agent system prompts ("You are a senior ... for a X / Y project")
+- `FRAMEWORK` — same source
+- `PACKAGE_MANAGER` — from settings.json permissions ("Bash(pnpm run:*)")
+- `LINT_COMMAND` — from validate.md or implement.md
+- `TYPECHECK_COMMAND` — from validate.md or implement.md
+- `BUILD_COMMAND` — from validate.md
+- `TEST_COMMAND` — from validate.md or settings.json hooks
+- `LINTER` — from code-reviewer.md
+- `TEST_FRAMEWORK` — from code-reviewer.md or qa.md
+- `PROJECT_NAME` — from CLAUDE.md heading
+- `GITHUB_ISSUES_ENABLED` — check if qa.md contains a "## GitHub Issues" section
+
+## Step 4: Find skill templates
+
+```bash
+ls ~/.claude/skills/claude-bootstrap/assets/templates/ 2>/dev/null || \
+ls ~/.claude/skills/*/assets/templates/ 2>/dev/null | head -5
+```
+
+If found, read templates from that path.
+If not found, use the template content you have in context from SKILL.md.
+
+## Step 5: Present upgrade plan
+
+Show a clear summary before making any changes:
+
+```
+📋 Upgrade plan for [PROJECT_NAME]:
+
+  Commands to update:
+    ✏️  prd.md        → SDD structure (sections 1-2)
+    ✏️  plan.md       → SDD structure (sections 4-5)
+    ✏️  implement.md  → SDD-aware flow
+    ✏️  prime.md      → SDD scanning on startup
+    ✏️  design.md     → contributes SDD section 3
+    ➕  upgrade.md    → this command (add for future upgrades)
+
+  Agents to update:
+    ✏️  planner.md    → writes to SDD format
+    ➕  design.md     → new (frontend detected: [FRAMEWORK])
+
+  CLAUDE.md:
+    ➕  ## Specs section (append only — existing content untouched)
+
+  settings.json:
+    ➕  Bash(gh issue:*) permission (if not present)
+
+  Custom files (preserved untouched):
+    🔒  [list any custom commands/agents found in Step 2]
+
+  Protected (never modified):
+    🔒  .claude/agent-memory/     ([N] files — [list agents with memory])
+    🔒  .claude/settings.local.json
+
+Ask for confirmation before proceeding.
+```
+
+## Step 6: Apply updates
+
+**Commands** — Re-generate each outdated command filling in extracted values.
+Overwrite the file entirely; commands are stateless instruction text.
+
+**Agents** — Update surgically:
+- Replace the system prompt header (first paragraph after frontmatter) if it changed
+- Update or add specific sections (e.g., add `## GitHub Issues` to qa.md if enabled)
+- Preserve `memory: project` frontmatter if already present
+- Never modify the `## Memory` section content — it may contain project-specific customizations
+- Preserve any sections not present in the standard template (user additions)
+
+**CLAUDE.md** — Only append sections that don't already exist.
+Check with `grep "## Specs" CLAUDE.md` before appending.
+
+**settings.json** — Merge new entries into `permissions.allow` without removing existing ones.
+Add new hooks only if the hook event/matcher combination doesn't already exist.
+
+**Never touch:**
+- `.claude/agent-memory/` — accumulated knowledge from all past sessions
+- `.claude/settings.local.json` — personal overrides
+- Any file not in the standard template set
+
+## Step 7: Report
+
+```
+✅ Upgrade complete!
+
+  Updated:    [list of files changed]
+  Added:      [list of new files]
+  Skipped:    [list of files already up to date]
+  Preserved:  .claude/agent-memory/ ([N] files intact)
+
+Agent memory summary:
+  [agent]: [N] memory files — [brief description of what's stored]
+```

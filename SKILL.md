@@ -23,6 +23,11 @@ allowed-tools: Read, Write, Bash, Glob, Grep
 - The project has NO `.claude/` directory
 - The project has a partial `.claude/` setup (missing commands, agents, or skills)
 - The user explicitly asks to bootstrap/init/setup Claude Code configuration
+- The user asks to upgrade or update an existing `.claude/` setup
+
+When upgrading an existing project, run `/project:upgrade` if it exists,
+or follow the upgrade workflow: extract current values → diff against latest
+templates → apply changes → preserve `.claude/agent-memory/` entirely.
 
 ## Step 1: Detect the Project Stack
 
@@ -120,7 +125,8 @@ Create the complete `.claude/` scaffold:
 │   ├── check-ignores.md
 │   ├── create-command.md
 │   ├── create-rules.md
-│   └── design.md
+│   ├── design.md
+│   └── upgrade.md
 │
 ├── agents/            # Base + conditional agents
 │   ├── planner.md         # (always)
