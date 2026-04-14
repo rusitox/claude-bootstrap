@@ -1,6 +1,6 @@
 ---
 allowed-tools: Read, Write, Bash, Glob, Grep
-description: Upgrade .claude/ to the latest claude-bootstrap templates, preserving agent memory
+description: Sync .claude/ with the latest claude-bootstrap templates, preserving agent memory
 ---
 
 Upgrade this project's Claude Code configuration to the latest templates.
@@ -29,7 +29,7 @@ Identify:
 - Any custom commands or agents (not in the standard set — preserve these untouched)
 
 Standard commands: prime, plan, implement, validate, commit, create-pr, review-pr,
-prd, rca, check-ignores, create-command, create-rules, design, upgrade
+prd, rca, check-ignores, create-command, create-rules, design, sync
 
 Standard agents: planner, code-reviewer, qa, frontend, design, backend, database, devops
 
@@ -83,7 +83,7 @@ Show a clear summary before making any changes:
     ✏️  implement.md  → SDD-aware flow
     ✏️  prime.md      → SDD scanning on startup
     ✏️  design.md     → contributes SDD section 3
-    ➕  upgrade.md    → this command (add for future upgrades)
+    ➕  sync.md       → this command (add for future syncs)
 
   Agents to update:
     ✏️  planner.md    → writes to SDD format

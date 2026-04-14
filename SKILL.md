@@ -25,7 +25,7 @@ allowed-tools: Read, Write, Bash, Glob, Grep
 - The user explicitly asks to bootstrap/init/setup Claude Code configuration
 - The user asks to upgrade or update an existing `.claude/` setup
 
-When upgrading an existing project, run `/project:upgrade` if it exists,
+When upgrading an existing project, run `/project:sync` if it exists,
 or follow the upgrade workflow: extract current values → diff against latest
 templates → apply changes → preserve `.claude/agent-memory/` entirely.
 
@@ -126,7 +126,7 @@ Create the complete `.claude/` scaffold:
 │   ├── create-command.md
 │   ├── create-rules.md
 │   ├── design.md
-│   └── upgrade.md
+│   └── sync.md
 │
 ├── agents/            # Base + conditional agents
 │   ├── planner.md         # (always)

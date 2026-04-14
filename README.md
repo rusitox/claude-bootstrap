@@ -7,7 +7,7 @@ scaffoldea una configuración `.claude/` completa y lista para producción.
 
 | Categoría | Contenido |
 |---|---|
-| **14 slash commands** | prime, prd, design, plan, implement, validate, commit, create-pr, review-pr, rca, check-ignores, create-command, create-rules, upgrade |
+| **14 slash commands** | prime, prd, design, plan, implement, validate, commit, create-pr, review-pr, rca, check-ignores, create-command, create-rules, sync |
 | **3 agentes base** | planner, code-reviewer, qa (siempre presentes) |
 | **5 agentes condicionales** | frontend, design, backend, database, devops |
 | **Rules** | typescript, react-components, python (según stack) |
@@ -68,15 +68,15 @@ El skill va a:
 Si ya tenés un proyecto bootstrapeado con una versión anterior:
 
 ```
-/project:upgrade
+/project:sync
 ```
 
-El comando `/upgrade` detecta qué cambió, muestra un plan de lo que va a
+El comando `/sync` detecta qué cambió, muestra un plan de lo que va a
 actualizar, pide confirmación, y aplica los cambios. **Nunca modifica
 `.claude/agent-memory/`** — la memoria acumulada de los agentes queda intacta.
 
-Para proyectos que no tienen el comando `/upgrade` todavía, invocar el skill
-directamente: Claude detecta el `.claude/` existente y ofrece el modo upgrade.
+Para proyectos que no tienen el comando `/sync` todavía, invocar el skill
+directamente: Claude detecta el `.claude/` existente y ofrece el modo sync.
 
 ## Actualizar el skill
 
@@ -86,7 +86,7 @@ git pull
 ```
 
 Los proyectos existentes siguen usando los archivos generados hasta que
-corrás `/project:upgrade` en cada uno.
+corrás `/project:sync` en cada uno.
 
 ## Estructura del skill
 
@@ -115,7 +115,7 @@ claude-bootstrap/
     │   ├── check-ignores.md.template  ← Verifica .gitignore
     │   ├── create-command.md.template ← Crea nuevo slash command
     │   ├── create-rules.md.template   ← Crea nueva rule
-    │   └── upgrade.md.template        ← Actualiza .claude/ preservando memoria
+    │   └── sync.md.template        ← Actualiza .claude/ preservando memoria
     ├── agents/
     │   ├── planner.md.template        ← (siempre) Arquitectura y planificación
     │   ├── code-reviewer.md.template  ← (siempre) Revisión de código
